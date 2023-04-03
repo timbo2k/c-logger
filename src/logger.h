@@ -101,6 +101,20 @@ void logger_flush(void);
  */
 void logger_log(LogLevel level, const char* file, int line, const char* fmt, ...);
 
+/**
+ * Log a message.
+ * Make sure to call one of the following initialize functions before starting logging.
+ * - logger_initConsoleLogger()
+ * - logger_initFileLogger()
+ *
+ * @param[in] level A log level
+ * @param[in] file A file name string
+ * @param[in] line A line number
+ * @param[in] fmt A format string
+ * @param[in] arg Additional arguments
+ */
+void logger_vlog(LogLevel level, const char* file, int line, const char* fmt, va_list arg);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif /* __cplusplus */

@@ -371,3 +371,39 @@ void logger_log(LogLevel level, const char* file, int line, const char* fmt, ...
     unlock();
 }
 
+
+void logger_vlog(LogLevel level, const char* file, int line, const char* fmt, va_list arg)
+{
+    struct timeval now;
+    unsigned long long currentTime; /* milliseconds */
+    char levelc;
+    char timestamp[32];
+    long threadID;
+
+    if (s_logger == 0 || !s_initialized) {
+        assert(0 && "logger is not initialized");
+        return;
+    }
+
+    if (!logger_isEnabled(level)) {
+        return;
+    }
+    gettimeofday(&now, NULL);
+    currentTime = now.tv_sec * 1000 + now.tv_usec / 1000;
+    levelc = getLevelChar(level);
+    getTimestamp(&now, timestamp, sizeof(timestamp));
+    threadID = getCurrentThreadID();
+    lock();
+    if (hasFlag(s_logger, kConsoleLogger)) {
+        vflog(s_clog.output, levelc, timestamp, threadID,
+              file, line, fmt, arg, currentTime, &s_clog.flushedTime);
+    }
+    if (hasFlag(s_logger, kFileLogger)) {
+        if (rotateLogFiles()) {
+            s_flog.currentFileSize += vflog(s_flog.output, levelc, timestamp, threadID,
+                                            file, line, fmt, arg, currentTime, &s_flog.flushedTime);
+        }
+    }
+    unlock();
+}
+
