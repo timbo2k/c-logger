@@ -25,3 +25,5 @@ if [ $debug ] ; then
 else
     cmake -DCMAKE_BUILD_TYPE=Release ..
 fi
+
+echo "test"
